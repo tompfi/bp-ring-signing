@@ -1,6 +1,0 @@
-RunAsDaemon 0
-SOCKSPort 9050
-Log notice stdout
-
-HiddenServiceDir /var/lib/tor/hidden_service/
-HiddenServicePort 80 nginx:80
