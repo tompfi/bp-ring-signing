@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Signature Result - Ring Signature System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-check-circle"></i> Ring Signature Result</h2>
+                <div>
+                    <a href="{{ verification_url }}" class="btn btn-success me-2" target="_blank">
+                        <i class="bi bi-shield-check"></i> Verify This Signature
+                    </a>
+                    <a href="{% url 'verifier' %}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-check-circle"></i> Verify Other Signature
+                    </a>
+                    <a href="{% url 'sign' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle"></i> Create New Signature
+                    </a>
+                </div>
+            </div>
+            
+            <div class="alert alert-success" role="alert">
+                <i class="bi bi-check-circle-fill"></i> Ring signature created successfully!
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Signature Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong><i class="bi bi-chat-text"></i> Message Type:</strong> 
+                                <span class="badge bg-info">{{ signature_details.message_type }}</span>
+                            </p>
+                            <p><strong><i class="bi bi-file-text"></i> Original Input:</strong> 
+                                <div class="code-block">{{ signature_details.original_message }}</div>
+                            </p>
+                            <p><strong><i class="bi bi-hash"></i> Message Hash (Signed):</strong> 
+                                <div class="code-block">{{ signature_details.message }}</div>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong><i class="bi bi-link-45deg"></i> Glue Value:</strong></p>
+                            <div class="code-block">{{ signature_details.glue_value }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Verification URL Section -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg"></i> Verification URL</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Use this URL to verify the signature:</p>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="verificationUrl" value="{{ verification_url }}" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyVerificationUrl()">
+                            <i class="bi bi-clipboard"></i> Copy URL
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="bi bi-info-circle"></i> This URL contains all the necessary data to verify the signature
+                    </small>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Ring Members</h5>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="20%">Member</th>
+                                    <th width="40%">Public Key</th>
+                                    <th width="25%">X Value</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in signature_details.ring_members %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ member.name }}</strong>
+                                        <br><small class="text-muted">Member {{ member.member_index }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="code-block" style="font-size: 0.75rem; max-height: 100px; overflow-y: auto;">
+                                            {{ member.public_key }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="code-block" style="font-size: 0.85rem;">
+                                            {{ member.x_value|default:'0' }}
+                                        </div>
+                                   </td>
+                                    
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyVerificationUrl() {
+    const urlInput = document.getElementById('verificationUrl');
+    
+    // Select the text in the input
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Copy to clipboard
+    try {
+        document.execCommand('copy');
+        showNotification('Verification URL copied to clipboard!', 'success');
+    } catch (err) {
+        // Fallback for modern browsers
+        navigator.clipboard.writeText(urlInput.value).then(function() {
+            showNotification('Verification URL copied to clipboard!', 'success');
+        }).catch(function() {
+            showNotification('Failed to copy URL. Please select and copy manually.', 'error');
+        });
+    }
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+</script>
+
+{% endblock %}
