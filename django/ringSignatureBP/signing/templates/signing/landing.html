@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Welcome to Ring Signature System{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+      <h1 class="display-4 mb-4">Welcome to the Ring Signature System</h1>
+      <p class="lead mb-4">
+        This platform lets you create and verify <strong>RSA-based ring signatures</strong> using a fully working, mathematically correct implementation based on the original "How to Leak a Secret" paper by Ronald L. Rivest, Adi Shamir and Yael Tauman.<br>
+      
+      </p>
+      <div class="d-grid gap-3 col-8 mx-auto">
+        <a href="/signing/" class="btn btn-primary btn-lg">
+          <i class="bi bi-pencil-square me-2"></i> Create Ring Signature
+        </a>
+        <a href="/signing/verifier/" class="btn btn-success btn-lg">
+          <i class="bi bi-shield-check me-2"></i> Verify Signature
+        </a>
+      </div>
+      
+      <hr class="my-5">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card text-start shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="card-title mb-3"><i class="bi bi-plus-circle me-2"></i>How to Create a Signature</h3>
+              <ol class="mb-0">
+                <li><strong>Enter your message</strong> (text) or upload a PDF file (content will be hashed)</li>
+                <li><strong>Add ring members</strong> by clicking "Add Member" button</li>
+                <li><strong>Fill in member details:</strong> name, organization, and RSA public key (PEM format)</li>
+                <li><strong>OR use the GitHub lookup feature</strong> to automatically fetch public keys from a GitHub username</li>
+                <li><strong>Select the actual signer</strong> from the dropdown of ring members</li>
+                <li><strong>Provide the signer's RSA private key</strong> (PEM format, 1024/2048/4096-bit)</li>
+                <li><strong>Submit</strong> to generate the ring signature with consistent x-value lengths</li>
+                <li><strong>Copy the verification URL</strong> to share the signature</li>
+              </ol>
+              
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card text-start shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="card-title mb-3"><i class="bi bi-shield-check me-2"></i>How to Verify a Signature</h3>
+              <ol class="mb-0">
+                <li><strong>Enter the original message</strong> (text) or upload the PDF file</li>
+                <li><strong>Provide the glue value (v)</strong> from the signature</li>
+                <li><strong>Enter all x-values</strong> (Base64 encoded) from the signature</li>
+                <li><strong>Provide all RSA public keys</strong> (PEM format) of the ring members</li>
+                <li><strong>Submit</strong> to verify the signature using the original nested encryption combining function</li>
+              </ol>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="my-5">
+      <div class="card text-start shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title mb-3"><i class="bi bi-lightbulb me-2"></i>Current Implementation Features</h3>
+          <div class="row">
+            <div class="col-md-6">
+              <h5><i class="bi bi-shield-lock me-2"></i>Cryptographic Features</h5>
+              <ul class="mb-3">
+                <li><strong>RSA-based algorithm</strong> with combining function</li>
+                <li><strong>SHA-256 message hashing</strong> </li>
+                <li><strong>Symmetric encryption</strong> E_k(x) = (x + k) mod 2^128</li>
+                <li><strong>PEM format support</strong> for keys (1024/2048/4096-bit)</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h5><i class="bi bi-gear me-2"></i>Technical Features</h5>
+              <ul class="mb-3">
+                <li><strong>Real-time form validation</strong> with visual feedback</li>
+                <li><strong>GitHub key lookup</strong> for public keys</li>
+                <li><strong>PDF file support</strong> (content hashing)</li>
+                <li><strong>Copy verification URL</strong> for easy sharing</li>
+                <li><strong>No database dependencies</strong> </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="alert alert-success">
+            <h6>Complete Algorithm Overview</h6>
+            <ol class="mb-0 small">
+              <li><strong>Calculate k = H(m)</strong> using SHA-256 cryptographic hash </li>
+              <li><strong>Pick random glue value v</strong></li>
+              <li><strong>Compute temporary x_signer</strong> to determine target length for anonymity protection</li>
+              <li><strong>Generate random x_i for non-signers</strong> with matching lengths and compute y_i = g_i(x_i)</li>
+              <li><strong>Solve ring equation C_k,v(y_1, y_2, ..., y_n) = v</strong> by working backwards through nested encryption</li>
+              <li><strong>Calculate final x_signer = g_signer^-1(y_signer)</strong> using private key</li>
+            </ol>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
